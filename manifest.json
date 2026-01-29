@@ -1,6 +1,6 @@
 {
-  "name": "Interact Figma with LLMs",
-  "id": "figma-ai-agent-plugin",
+  "name": "Interact Figma with Gemini API",
+  "id": "interact-figma-with-gemini-api",
   "api": "1.0.0",
   "main": "code.js",
   "ui": "ui.html",
@@ -11,9 +11,7 @@
   "networkAccess": {
     "allowedDomains": [
       "https://generativelanguage.googleapis.com",
-      "https://picsum.photos",
-      "https://images.unsplash.com",
-      "https://images.pexels.com"
+      "https://picsum.photos"
     ]
   },
   "permissions": [

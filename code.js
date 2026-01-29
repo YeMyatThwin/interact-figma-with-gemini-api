@@ -2,7 +2,7 @@
 // This plugin allows natural language interaction to generate Figma designs
 
 // Configuration
-const GEMINI_API_KEY = 'AIzaSyBaGRSyfVQPhK8MM_F-nSItEbXvv_d-TEU'; // Replace with your actual API key
+const GEMINI_API_KEY = 'YOUR_API_KEY_HERE'; // Replace with your actual API key
 const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3-pro-preview:generateContent';
 
 // Store conversation history
