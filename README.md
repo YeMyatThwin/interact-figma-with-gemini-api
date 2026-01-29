@@ -4,8 +4,10 @@
 
 A Figma plugin that lets you create and modify designs using natural language. Chat with Google's Gemini AI to generate shapes, text, images, and layouts without writing code.
 
-![Demo](./demo.png)
-<!-- Replace demo.png with your screenshot showing the plugin in action -->
+
+## 🧑🏻‍💻 Demo
+![figma plugin with gemini api](https://github.com/user-attachments/assets/9216e964-6934-465f-bf2d-00ae40a8ba03)
+
 
 ## ✨ Features
 
