@@ -1,243 +1,218 @@
-# Figma UI Code Generator Plugin
+# Interact Figma with Gemini API
 
-A Figma plugin that allows you to paste JavaScript code and automatically generate UI designs in Figma.
+> Generate Figma designs through natural language conversation with Google's Gemini AI.
 
-## 📁 Plugin Structure
+A Figma plugin that lets you create and modify designs using natural language. Chat with Google's Gemini AI to generate shapes, text, images, and layouts without writing code.
+
+![Demo](./demo.png)
+<!-- Replace demo.png with your screenshot showing the plugin in action -->
+
+## ✨ Features
+
+- 🤖 **Natural Language Design**: Describe what you want in plain English
+- 💬 **Conversational Interface**: Chat-based interaction with context awareness
+- 🎨 **Full Figma API Access**: Create rectangles, text, frames, images, and complex layouts
+- 🔄 **Iterative Refinement**: Modify designs by continuing the conversation
+- 📸 **Image Support**: Generate designs with images from Picsum Photos
+- 🎯 **Smart Code Generation**: AI generates and executes Figma plugin code automatically
+- ⚡ **Real-time Execution**: See your designs appear immediately on the canvas
+- 🐛 **Error Handling**: Automatic retry with error feedback for failed executions
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Figma Desktop App (plugins only work in desktop, not browser)
+- Google Gemini API key ([Get one here](https://makersuite.google.com/app/apikey))
+
+### Installation
+
+1. Clone this repository:
+```bash
+git clone https://github.com/YeMyatThwin/interact-figma-with-gemini-api.git
+cd interact-figma-with-gemini-api
+```
+
+2. Add your Gemini API key in [code.js](code.js#L6):
+```javascript
+const GEMINI_API_KEY = 'YOUR_API_KEY_HERE';
+```
+
+3. Import the plugin into Figma:
+   - Open Figma Desktop App
+   - Go to **Menu** → **Plugins** → **Development** → **Import plugin from manifest...**
+   - Select the `manifest.json` file from this project
+   - Click **Open**
+
+### Usage
+
+1. Open any Figma file
+2. Go to **Menu** → **Plugins** → **Development** → **Interact Figma with LLMs**
+3. Start chatting! Try these examples:
+   - "Create a blue rectangle 200x100"
+   - "Add a title that says 'Welcome'"
+   - "Create a login form with email and password fields"
+   - "Add a random image 400x300"
+   - "Make the rectangle rounded"
+
+## 💡 Example Prompts
+
+**Basic Shapes:**
+- "Create a red circle"
+- "Add a rounded rectangle with shadow"
+- "Make a blue square 150x150"
+
+**Text Elements:**
+- "Add a heading that says 'Hello World'"
+- "Create a paragraph with lorem ipsum text"
+- "Add a small caption below"
+
+**Complex Layouts:**
+- "Create a card with a title, description, and button"
+- "Design a navigation bar with logo and menu items"
+- "Make a pricing table with 3 columns"
+
+**Images:**
+- "Add a random image 800x600"
+- "Create a photo gallery with 4 images"
+
+**Modifications:**
+- "Change the color to green"
+- "Make it bigger"
+- "Center it on the page"
+
+## 🏗️ Project Structure
 
 ```
-figma-plugin/
-├── manifest.json     # Plugin configuration
-├── code.js          # Main plugin logic (runs in Figma sandbox)
-├── ui.html          # Plugin UI interface
+interact-figma-with-gemini-api/
+├── manifest.json     # Plugin configuration and permissions
+├── code.js          # Main plugin logic with Gemini API integration
+├── ui.html          # Chat interface UI
 └── README.md        # This file
 ```
 
-## 🚀 How to Install & Use
-
-### Step 1: Import the Plugin to Figma
-
-1. Open Figma Desktop App (plugins only work in desktop, not browser)
-2. Go to **Menu** → **Plugins** → **Development** → **Import plugin from manifest...**
-3. Navigate to the `figma-plugin` folder and select the `manifest.json` file
-4. Click **Open**
-
-### Step 2: Run the Plugin
-
-1. In any Figma file, go to **Menu** → **Plugins** → **Development** → **UI Generator**
-2. The plugin window will open with a code editor
-
-### Step 3: Generate Designs
-
-**Option 1: Use Templates**
-- Click one of the template buttons (📝 Registration, ✈️ Booking, 💬 Chat)
-- Click **Generate Design**
-- Your design will appear on the canvas!
-
-**Option 2: Paste Custom Code**
-- Copy any of your existing code files (registration-page.js, airline-booking-page.js, chat-app.js)
-- Paste the entire code into the textarea
-- Click **Generate Design**
-
-## 📝 Code Format
-
-The plugin accepts code in this format:
-
-```javascript
-(async () => {
-  // Load fonts first
-  await figma.loadFontAsync({family: 'Inter', style: 'Regular'});
-  
-  // Create frames and nodes
-  const frame = figma.createFrame();
-  frame.name = 'My Design';
-  frame.layoutMode = 'VERTICAL';
-  frame.resize(400, 300);
-  
-  // ... add more elements
-  
-  // Add to page
-  figma.currentPage.appendChild(frame);
-  
-  // Center in viewport (optional)
-  figma.viewport.scrollAndZoomIntoView([frame]);
-  
-  // Close plugin with message
-  figma.closePlugin('Design created!');
-})();
-```
-
-## 🎯 Key Features
-
-- **Live Code Execution**: Paste code and see results immediately
-- **Template Library**: Pre-built templates for common UI patterns
-- **Error Handling**: Clear error messages if something goes wrong
-- **Auto Layout Support**: Full support for Figma's auto-layout features
-- **Font Loading**: Automatically handles async font loading
-- **SVG Icons**: Supports icon creation via SVG
-
 ## 🔧 How It Works
 
-1. **UI Layer** (`ui.html`): Provides a text editor interface where you paste code
-2. **Plugin Layer** (`code.js`): Receives the code from UI and executes it using `eval()`
-3. **Figma API**: The code has full access to the `figma` global object to create designs
+1. **User Input**: You describe what you want in the chat interface
+2. **AI Processing**: Gemini AI interprets your request and generates Figma API code
+3. **Code Execution**: The plugin executes the generated code in Figma's context
+4. **Result**: Your design appears on the canvas
+5. **Feedback Loop**: If errors occur, they're sent back to the AI for automatic correction
 
 ### Architecture
 
 ```
-┌─────────────────┐
-│   UI (iframe)   │
-│   ui.html       │
-│   - Code editor │
-│   - Templates   │
-│   - Buttons     │
-└────────┬────────┘
-         │ postMessage
-         ▼
-┌─────────────────┐
-│  Plugin Sandbox │
-│   code.js       │
-│   - Receives    │
-│   - Executes    │
-│   - Creates     │
-└────────┬────────┘
-         │ figma API
-         ▼
-┌─────────────────┐
-│  Figma Canvas   │
-│   - Frames      │
-│   - Nodes       │
-│   - Designs     │
-└─────────────────┘
+┌─────────────────────┐
+│   Chat UI           │
+│   (ui.html)         │
+│   - User messages   │
+│   - AI responses    │
+│   - Execute buttons │
+└──────────┬──────────┘
+           │
+           ▼
+┌─────────────────────┐
+│   Plugin Core       │
+│   (code.js)         │
+│   - API calls       │
+│   - Code execution  │
+│   - Error handling  │
+└──────────┬──────────┘
+           │
+           ├────────────────┐
+           ▼                ▼
+┌─────────────────┐  ┌──────────────┐
+│  Gemini API     │  │  Figma API   │
+│  - Understands  │  │  - Creates   │
+│  - Generates    │  │  - Modifies  │
+│  - Fixes errors │  │  - Renders   │
+└─────────────────┘  └──────────────┘
 ```
 
-## 📚 Using Your Existing Code Files
+## 🎨 Supported Design Elements
 
-All your existing code files can be used directly:
+- **Shapes**: Rectangles, ellipses, polygons, stars
+- **Text**: With custom fonts, sizes, and colors
+- **Frames**: For organizing layouts
+- **Images**: Via Picsum Photos API
+- **Auto Layout**: For responsive designs
+- **Colors**: Solid fills with RGB values
+- **Positioning**: Absolute and relative positioning
 
-### Registration Page
-```bash
-# Copy the entire content of registration-page.js
-# Paste into the plugin
-# Click Generate
-```
+## ⚙️ Configuration
 
-### Airline Booking Page
-```bash
-# Copy the entire content of airline-booking-page.js
-# Paste into the plugin
-# Click Generate
-```
+### API Endpoints
 
-### Chat App
-```bash
-# Copy the entire content of chat-app.js
-# Paste into the plugin
-# Click Generate
-```
+The plugin uses:
+- **Gemini API**: `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-pro-preview:generateContent`
+- **Images**: `https://picsum.photos` (pre-configured in manifest.json)
 
-## 🎨 Figma API Essentials
+### Network Access
 
-### Creating Frames
-```javascript
-const frame = figma.createFrame();
-frame.name = 'My Frame';
-frame.resize(400, 300);
-```
-
-### Auto Layout
-```javascript
-frame.layoutMode = 'VERTICAL';  // or 'HORIZONTAL'
-frame.primaryAxisSizingMode = 'AUTO';  // Hug contents
-frame.counterAxisSizingMode = 'FIXED';
-frame.itemSpacing = 16;  // Gap between items
-frame.paddingTop = 20;
-frame.paddingLeft = 20;
-```
-
-### Text
-```javascript
-// Always load font first!
-await figma.loadFontAsync({family: 'Inter', style: 'Regular'});
-
-const text = figma.createText();
-text.fontName = {family: 'Inter', style: 'Regular'};
-text.characters = 'Hello World';
-text.fontSize = 16;
-```
-
-### Colors
-```javascript
-// RGB values from 0 to 1
-frame.fills = [{
-  type: 'SOLID', 
-  color: {r: 1, g: 0, b: 0}  // Red
-}];
-```
-
-### SVG Icons
-```javascript
-const svgString = '<svg>...</svg>';
-const icon = figma.createNodeFromSvg(svgString);
-```
-
-### Adding to Canvas
-```javascript
-// Always append to page or parent
-figma.currentPage.appendChild(frame);
-
-// Optional: center in viewport
-figma.viewport.scrollAndZoomIntoView([frame]);
-```
+The manifest.json includes these allowed domains:
+- `generativelanguage.googleapis.com` - Gemini AI
+- `picsum.photos` - Random images
 
 ## 🐛 Troubleshooting
 
-### "Font not found" Error
-```javascript
-// Make sure to load fonts before using them
-await figma.loadFontAsync({family: 'Inter', style: 'Regular'});
-await figma.loadFontAsync({family: 'Inter', style: 'Medium'});
-await figma.loadFontAsync({family: 'Inter', style: 'Bold'});
+**API Key Issues:**
+- Ensure your API key is valid and has Gemini API access enabled
+- Check the browser console for detailed error messages
+
+**Plugin Not Showing:**
+- Make sure you're using Figma Desktop App (not browser)
+- Reload the plugin: Menu → Plugins → Development → Reload plugin
+
+**Code Execution Errors:**
+- The AI will automatically retry with error feedback
+- Check if fonts are available (Inter is default)
+- Verify network connection for API calls
+
+**Images Not Loading:**
+- Only Picsum Photos URLs are supported
+- Check network permissions in manifest.json
+
+## 🔒 Security & Privacy
+
+- API key is stored in code.js (keep it private)
+- Code execution happens in Figma's sandboxed environment
+- No design data is sent to external servers except via Gemini API
+- Conversation history is maintained locally during plugin session
+
+## 📝 API Response Format
+
+The AI returns responses in this JSON format:
+```json
+{
+  "message": "Plain English explanation",
+  "function": "(async () => { /* Figma API code */ })();"
+}
 ```
 
-### Elements Not Showing
-```javascript
-// Always append to page
-figma.currentPage.appendChild(yourFrame);
-```
+## 🤝 Contributing
 
-### Plugin Doesn't Close
-```javascript
-// Add this at the end of your code
-figma.closePlugin('Success message');
-```
+Contributions are welcome! Feel free to:
+- Report bugs
+- Suggest new features
+- Submit pull requests
+- Improve documentation
 
-## 📖 Additional Resources
+## 📄 License
 
-- [Figma Plugin API Documentation](https://www.figma.com/plugin-docs/)
-- [Figma Plugin API Reference](https://www.figma.com/plugin-docs/api/api-reference/)
-- [Lucide Icons](https://lucide.dev/) - Icon library used in templates
-- [Figma Community Plugins](https://www.figma.com/community/plugins)
+MIT License - feel free to use this project for learning and development.
 
-## 🔒 Security Note
+## 🙏 Acknowledgments
 
-This plugin uses `eval()` to execute code, which means it can run any JavaScript. Only use code you trust or have written yourself. Never paste code from untrusted sources.
+- Built with [Figma Plugin API](https://www.figma.com/plugin-docs/)
+- Powered by [Google Gemini AI](https://deepmind.google/technologies/gemini/)
+- Images from [Picsum Photos](https://picsum.photos)
 
-## 💡 Tips
+## 📚 Resources
 
-1. **Start Small**: Test with simple frames before complex layouts
-2. **Use Templates**: Modify existing templates rather than starting from scratch
-3. **Check Console**: Open developer console for detailed error messages
-4. **Auto Layout**: Use auto-layout for responsive designs
-5. **Font Loading**: Always await font loading before setting text
-
-## 🎓 Next Steps
-
-1. Try the included templates
-2. Modify template code to customize designs
-3. Create your own reusable components
-4. Explore the Figma Plugin API documentation
-5. Build more complex UI patterns
+- [Figma Plugin Documentation](https://www.figma.com/plugin-docs/)
+- [Gemini API Documentation](https://ai.google.dev/docs)
+- [Plugin API Reference](https://www.figma.com/plugin-docs/api/api-reference/)
 
 ---
 
-**Built for rapid UI prototyping in Figma** ✨
+**Built with ❤️ for rapid prototyping and AI-powered design**
