@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Figma AI Agent</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 14px;
+      background: #f5f5f5;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .header {
+      background: #ffffff;
+      padding: 16px;
+      border-bottom: 1px solid #e5e5e5;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    
+    .header h1 {
+      font-size: 14px;
+      font-weight: 600;
+      color: #000000;
+    }
+    
+    .close-btn {
+      background: none;
+      border: none;
+      color: #999;
+      cursor: pointer;
+      font-size: 18px;
+      padding: 4px 8px;
+    }
+    
+    .close-btn:hover {
+      color: #333;
+    }
+    
+    .chat-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    
+    .message {
+      display: flex;
+      gap: 8px;
+      animation: slideIn 0.3s ease;
+    }
+    
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .message.user {
+      flex-direction: row-reverse;
+    }
+    
+    .message-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+    
+    .message.ai .message-avatar {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+    
+    .message.user .message-avatar {
+      background: #18A0FB;
+      color: white;
+    }
+    
+    .message-content {
+      max-width: 75%;
+    }
+    
+    .message-bubble {
+      padding: 12px 16px;
+      border-radius: 12px;
+      word-wrap: break-word;
+    }
+    
+    .message.ai .message-bubble {
+      background: #ffffff;
+      border: 1px solid #e5e5e5;
+      border-radius: 12px 12px 12px 4px;
+    }
+    
+    .message.user .message-bubble {
+      background: #18A0FB;
+      color: white;
+      border-radius: 12px 12px 4px 12px;
+    }
+    
+    .message-actions {
+      margin-top: 8px;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    
+    .allow-btn {
+      background: #18A0FB;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    
+    .allow-btn:hover {
+      background: #0D8CE8;
+    }
+    
+    .allow-btn:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+    
+    .toggle-code-btn {
+      background: #f0f0f0;
+      border: none;
+      width: 24px;
+      height: 24px;
+      border-radius: 4px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+    
+    .toggle-code-btn:hover {
+      background: #e0e0e0;
+    }
+    
+    .toggle-code-btn.expanded {
+      transform: rotate(180deg);
+    }
+    
+    .code-preview {
+      margin-top: 8px;
+      padding: 12px;
+      background: #1e1e1e;
+      border-radius: 6px;
+      font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
+      font-size: 11px;
+      color: #d4d4d4;
+      max-height: 200px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      word-break: break-all;
+      display: none;
+    }
+    
+    .code-preview.visible {
+      display: block;
+    }
+    
+    .status-text {
+      font-size: 11px;
+      color: #666;
+      margin-top: 4px;
+    }
+    
+    .status-text.success {
+      color: #2E7D32;
+    }
+    
+    .status-text.error {
+      color: #C62828;
+    }
+    
+    .retry-btn {
+      background: #4CAF50;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+      font-size: 11px;
+      cursor: pointer;
+      margin-top: 4px;
+    }
+    
+    .retry-btn:hover {
+      background: #45a049;
+    }
+    
+    .input-container {
+      background: #ffffff;
+      border-top: 1px solid #e5e5e5;
+      padding: 16px;
+      display: flex;
+      gap: 8px;
+    }
+    
+    .input-wrapper {
+      flex: 1;
+      position: relative;
+    }
+    
+    #message-input {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #e5e5e5;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 14px;
+      resize: none;
+      max-height: 100px;
+    }
+    
+    #message-input:focus {
+      outline: none;
+      border-color: #18A0FB;
+    }
+    
+    #send-btn {
+      background: #18A0FB;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s;
+      align-self: flex-end;
+    }
+    
+    #send-btn:hover:not(:disabled) {
+      background: #0D8CE8;
+    }
+    
+    #send-btn:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+    
+    .loading {
+      display: none;
+      padding: 12px 16px;
+      background: #ffffff;
+      border: 1px solid #e5e5e5;
+      border-radius: 12px;
+      color: #666;
+      font-size: 13px;
+    }
+    
+    .loading.visible {
+      display: block;
+    }
+    
+    .loading::after {
+      content: '...';
+      animation: dots 1.5s infinite;
+    }
+    
+    @keyframes dots {
+      0%, 20% { content: '.'; }
+      40% { content: '..'; }
+      60%, 100% { content: '...'; }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>🤖 Figma AI Agent</h1>
+    <button class="close-btn" id="close-btn">✕</button>
+  </div>
+
+  <div class="chat-container" id="chat-container">
+    <!-- Greeting message will be added here by JavaScript -->
+  </div>
+
+  <div class="input-container">
+    <div class="input-wrapper">
+      <textarea 
+        id="message-input" 
+        placeholder="Describe what you want to create..."
+        rows="1"></textarea>
+    </div>
+    <button id="send-btn">Send</button>
+  </div>
+
+  <script>
+    const chatContainer = document.getElementById('chat-container');
+    const messageInput = document.getElementById('message-input');
+    const sendBtn = document.getElementById('send-btn');
+    const closeBtn = document.getElementById('close-btn');
+    
+    let messageIdCounter = 0;
+    let lastUserMessage = '';
+    
+    // Add greeting message on load
+    window.onload = () => {
+      addAIMessage(
+        "👋 Hello! I'm your Figma AI assistant. I can help you create designs using natural language. Just tell me what you want to create!\n\n" +
+        "Examples:\n" +
+        "• \"Create a red rectangle\"\n" +
+        "• \"Add a login form\"\n" +
+        "• \"Make a button with rounded corners\"\n" +
+        "• \"Create a card component\"\n\n" +
+        "I'll generate the code and you can review it before allowing execution.",
+        null,
+        true
+      );
+    };
+    
+    // Send message
+    sendBtn.onclick = sendMessage;
+    messageInput.onkeydown = (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    };
+    
+    // Auto-resize textarea
+    messageInput.oninput = function() {
+      this.style.height = 'auto';
+      this.style.height = (this.scrollHeight) + 'px';
+    };
+    
+    // Close button
+    closeBtn.onclick = () => {
+      parent.postMessage({ pluginMessage: { type: 'cancel' } }, '*');
+    };
+    
+    function sendMessage() {
+      const message = messageInput.value.trim();
+      if (!message) return;
+      
+      // Store the message
+      lastUserMessage = message;
+      
+      // Add user message
+      addUserMessage(message);
+      
+      // Clear input
+      messageInput.value = '';
+      messageInput.style.height = 'auto';
+      
+      // Show loading
+      const loadingId = addLoading();
+      
+      // Disable send button
+      sendBtn.disabled = true;
+      
+      // Send to plugin
+      parent.postMessage({ 
+        pluginMessage: { 
+          type: 'send-message', 
+          message: message 
+        } 
+      }, '*');
+    }
+    
+    function addUserMessage(text) {
+      const messageDiv = document.createElement('div');
+      messageDiv.className = 'message user';
+      messageDiv.innerHTML = `
+        <div class="message-avatar">👤</div>
+        <div class="message-content">
+          <div class="message-bubble">${escapeHtml(text)}</div>
+        </div>
+      `;
+      chatContainer.appendChild(messageDiv);
+      scrollToBottom();
+    }
+    
+    function addAIMessage(text, code, isGreeting = false, originalPrompt = null) {
+      const messageId = messageIdCounter++;
+      const messageDiv = document.createElement('div');
+      messageDiv.className = 'message ai';
+      messageDiv.dataset.messageId = messageId;
+      if (originalPrompt) {
+        messageDiv.dataset.originalPrompt = originalPrompt;
+      }
+      
+      let actionsHtml = '';
+      // Only show actions if there's actual code to execute (not empty or just a greeting)
+      if (!isGreeting && code && code.trim()) {
+        actionsHtml = `
+          <div class="message-actions">
+            <button class="allow-btn" onclick="executeCode(${messageId})">Allow</button>
+            <button class="toggle-code-btn" onclick="toggleCode(${messageId})">▼</button>
+          </div>
+          <div class="code-preview" id="code-${messageId}">${escapeHtml(code)}</div>
+          <div class="status-text" id="status-${messageId}"></div>
+        `;
+      }
+      
+      messageDiv.innerHTML = `
+        <div class="message-avatar">🤖</div>
+        <div class="message-content">
+          <div class="message-bubble">${escapeHtml(text).replace(/\n/g, '<br>')}</div>
+          ${actionsHtml}
+        </div>
+      `;
+      
+      chatContainer.appendChild(messageDiv);
+      scrollToBottom();
+      
+      return messageId;
+    }
+    
+    function addLoading() {
+      const loadingDiv = document.createElement('div');
+      loadingDiv.className = 'loading visible';
+      loadingDiv.id = 'loading';
+      loadingDiv.textContent = 'AI is thinking';
+      chatContainer.appendChild(loadingDiv);
+      scrollToBottom();
+      return 'loading';
+    }
+    
+    function removeLoading() {
+      const loading = document.getElementById('loading');
+      if (loading) loading.remove();
+    }
+    
+    function toggleCode(messageId) {
+      const codePreview = document.getElementById(`code-${messageId}`);
+      const btn = event.target;
+      
+      codePreview.classList.toggle('visible');
+      btn.classList.toggle('expanded');
+    }
+    
+    window.executeCode = function(messageId) {
+      const messageDiv = document.querySelector(`[data-message-id="${messageId}"]`);
+      const codePreview = document.getElementById(`code-${messageId}`);
+      const statusDiv = document.getElementById(`status-${messageId}`);
+      const allowBtn = messageDiv.querySelector('.allow-btn');
+      
+      const code = codePreview.textContent;
+      
+      // Update status
+      statusDiv.textContent = 'Executing...';
+      statusDiv.className = 'status-text';
+      allowBtn.disabled = true;
+      
+      // Send code to plugin
+      parent.postMessage({ 
+        pluginMessage: { 
+          type: 'execute-code', 
+          code: code,
+          messageId: messageId
+        } 
+      }, '*');
+    };
+    
+    function scrollToBottom() {
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+    
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+    
+    // Listen for messages from plugin
+    window.onmessage = (event) => {
+      const msg = event.data.pluginMessage;
+      
+      if (msg.type === 'ai-response') {
+        removeLoading();
+        sendBtn.disabled = false;
+        
+        // Add AI message with code and original prompt
+        addAIMessage(msg.data.message, msg.data.function, false, lastUserMessage);
+        
+      } else if (msg.type === 'api-error') {
+        removeLoading();
+        sendBtn.disabled = false;
+        
+        addAIMessage(
+          `❌ Error: ${msg.error}\n\nPlease check your API key or try again.`,
+          null,
+          true
+        );
+        
+      } else if (msg.type === 'execution-success') {
+        const statusDiv = document.getElementById(`status-${msg.messageId}`);
+        const allowBtn = document.querySelector(`[data-message-id="${msg.messageId}"] .allow-btn`);
+        
+        if (statusDiv) {
+          statusDiv.innerHTML = `
+            <span class="success">✓ Executed successfully!</span>
+            <button class="retry-btn" onclick="retryWithAI(${msg.messageId})">Regenerate</button>
+          `;
+          statusDiv.className = 'status-text success';
+        }
+        if (allowBtn) {
+          allowBtn.disabled = true;
+          allowBtn.textContent = '✓ Done';
+        }
+        
+        // If there's a return value, send it back to AI for interpretation
+        if (msg.returnValue !== null && msg.returnValue !== undefined) {
+          // Show loading
+          addLoading();
+          sendBtn.disabled = true;
+          
+          // Format the return value for the AI
+          const returnDataMessage = `The code execution returned the following data:\n\n${JSON.stringify(msg.returnValue, null, 2)}\n\nPlease explain this to the user in plain English.`;
+          
+          // Send to plugin to ask AI to interpret
+          parent.postMessage({ 
+            pluginMessage: { 
+              type: 'send-message', 
+              message: returnDataMessage
+            } 
+          }, '*');
+        }
+        
+      } else if (msg.type === 'execution-error') {
+        const messageDiv = document.querySelector(`[data-message-id="${msg.messageId}"]`);
+        const statusDiv = document.getElementById(`status-${msg.messageId}`);
+        const allowBtn = messageDiv.querySelector('.allow-btn');
+        
+        // Store error in data attribute
+        if (messageDiv) {
+          messageDiv.dataset.error = msg.error;
+        }
+        
+        if (statusDiv) {
+          statusDiv.innerHTML = `
+            <span class="error">❌ Error: ${escapeHtml(msg.error)}</span>
+            <button class="retry-btn" onclick="retryWithAI(${msg.messageId})">Retry with AI</button>
+            <button class="retry-btn" onclick="sendErrorToAI(${msg.messageId})">Ask AI to Fix</button>
+          `;
+          statusDiv.className = 'status-text error';
+        }
+        if (allowBtn) {
+          allowBtn.disabled = false;
+        }
+      }
+    };
+    
+    function retryWithAI(messageId) {
+      const messageDiv = document.querySelector(`[data-message-id="${messageId}"]`);
+      const originalPrompt = messageDiv.dataset.originalPrompt;
+      
+      if (!originalPrompt) {
+        console.error('No original prompt found');
+        return;
+      }
+      
+      // Add user message again
+      addUserMessage(originalPrompt);
+      
+      // Show loading
+      addLoading();
+      sendBtn.disabled = true;
+      
+      // Resend original prompt to plugin
+      parent.postMessage({ 
+        pluginMessage: { 
+          type: 'send-message', 
+          message: originalPrompt
+        } 
+      }, '*');
+    }
+    
+    function sendErrorToAI(messageId) {
+      const messageDiv = document.querySelector(`[data-message-id="${messageId}"]`);
+      const error = messageDiv ? messageDiv.dataset.error : '';
+      
+      if (!error) {
+        console.error('No error found for message', messageId);
+        return;
+      }
+      
+      // Show loading
+      const loadingId = addLoading();
+      sendBtn.disabled = true;
+      
+      // Send error feedback to plugin
+      parent.postMessage({ 
+        pluginMessage: { 
+          type: 'send-error-feedback', 
+          error: error,
+          originalMessageId: messageId
+        } 
+      }, '*');
+    }
+  </script>
+</body>
+</html>
