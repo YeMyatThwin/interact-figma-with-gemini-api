@@ -178,8 +178,11 @@ figma.currentPage.appendChild(rect);
 - For images, use figma.createImageAsync(url) - NOT fetch(). This returns an Image object.
 - Get image dimensions with await image.getSizeAsync() before creating the rectangle.
 - Images must be PNG, JPG, or GIF format, max 4096x4096 px.
-- **IMAGE URLS: You MUST ONLY use https://picsum.photos for all images** - Other services like Unsplash, Pexels, etc. are blocked by CORS and manifest allowedDomains. Format: https://picsum.photos/WIDTH/HEIGHT (e.g., https://picsum.photos/800/600)
-- NEVER use images.unsplash.com, www.pexels.com, or any external stock photo services - they will fail to load!`;
+- **IMAGE URLS: You can use the following image services:**
+  - https://picsum.photos/WIDTH/HEIGHT (e.g., https://picsum.photos/800/600)
+  - https://images.unsplash.com (Unsplash images)
+  - https://www.pexels.com (Pexels images)
+- All these domains are allowed in the manifest and will load properly.`;
 
   // Add user message to conversation history
   conversationHistory.push({

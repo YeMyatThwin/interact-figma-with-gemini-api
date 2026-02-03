@@ -11,7 +11,9 @@
   "networkAccess": {
     "allowedDomains": [
       "https://generativelanguage.googleapis.com",
-      "https://picsum.photos"
+      "https://picsum.photos",
+      "https://images.unsplash.com",
+      "https://www.pexels.com"
     ]
   },
   "permissions": [
