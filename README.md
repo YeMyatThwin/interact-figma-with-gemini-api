@@ -6,6 +6,7 @@ A Figma plugin that lets you create and modify designs using natural language. C
 
 
 ## 🧑🏻‍💻 Demo
+
 ![figma plugin with gemini api](https://github.com/user-attachments/assets/9216e964-6934-465f-bf2d-00ae40a8ba03)
 
 
